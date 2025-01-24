@@ -1,0 +1,91 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="ErrorOr" Version="2.0.1" />
+    <PackageReference Include="MailKit" Version="4.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.12" />
+    <PackageReference Include="MongoDB.Bson" Version="3.1.0" />
+    <PackageReference Include="MongoDB.Driver" Version="3.1.0" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.30.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Apps\AppSystem\Interfaces\" />
+    <Folder Include="Apps\AppSystem\Models\" />
+    <Folder Include="Apps\AppSystem\Services\" />
+    <Folder Include="Apps\Mail\Controllers\" />
+    <Folder Include="Apps\Mail\Helpers\" />
+    <Folder Include="Apps\Mail\Models\" />
+    <Folder Include="Apps\Payments\Checkout\Controllers\" />
+    <Folder Include="Apps\Payments\Checkout\Helpers\" />
+    <Folder Include="Apps\Payments\Checkout\Interfaces\" />
+    <Folder Include="Apps\Payments\Checkout\Services\" />
+    <Folder Include="Apps\Payments\ClipcardPayment\Controllers\" />
+    <Folder Include="Apps\Payments\ClipcardPayment\Helpers\" />
+    <Folder Include="Apps\Payments\ClipcardPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\ClipcardPayment\Services\" />
+    <Folder Include="Apps\Payments\InvIncoice\Controllers\" />
+    <Folder Include="Apps\Payments\InvIncoice\Helpers\" />
+    <Folder Include="Apps\Payments\InvIncoice\Interfaces\" />
+    <Folder Include="Apps\Payments\InvIncoice\Services\" />
+    <Folder Include="Apps\Payments\Invoice\Controllers\" />
+    <Folder Include="Apps\Payments\Invoice\Helpers\" />
+    <Folder Include="Apps\Payments\Invoice\Interfaces\" />
+    <Folder Include="Apps\Payments\Invoice\Services\" />
+    <Folder Include="Apps\Payments\KioskOrderPayment\Controllers\" />
+    <Folder Include="Apps\Payments\KioskOrderPayment\Helpers\" />
+    <Folder Include="Apps\Payments\KioskOrderPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\KioskOrderPayment\Models\" />
+    <Folder Include="Apps\Payments\KioskOrderPayment\Services\" />
+    <Folder Include="Apps\Payments\MembershipPayment\Controllers\" />
+    <Folder Include="Apps\Payments\MembershipPayment\Helpers\" />
+    <Folder Include="Apps\Payments\MembershipPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\MembershipPayment\Models\" />
+    <Folder Include="Apps\Payments\MembershipPayment\Services\" />
+    <Folder Include="Apps\Payments\OrdersPayment\Controllers\" />
+    <Folder Include="Apps\Payments\OrdersPayment\Helpers\" />
+    <Folder Include="Apps\Payments\OrdersPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\OrdersPayment\Models\" />
+    <Folder Include="Apps\Payments\OrdersPayment\Services\" />
+    <Folder Include="Apps\Payments\PagbankPayment\Controllers\" />
+    <Folder Include="Apps\Payments\PagbankPayment\Helpers\" />
+    <Folder Include="Apps\Payments\PagbankPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\PagbankPayment\Models\" />
+    <Folder Include="Apps\Payments\PagbankPayment\Services\" />
+    <Folder Include="Apps\Payments\QuickPayment\Controllers\" />
+    <Folder Include="Apps\Payments\QuickPayment\Helpers\" />
+    <Folder Include="Apps\Payments\QuickPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\QuickPayment\Models\" />
+    <Folder Include="Apps\Payments\QuickPayment\Services\" />
+    <Folder Include="Apps\Payments\StrpieConnectPayment\Controllers\" />
+    <Folder Include="Apps\Payments\StrpieConnectPayment\Helpers\" />
+    <Folder Include="Apps\Payments\StrpieConnectPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\StrpieConnectPayment\Models\" />
+    <Folder Include="Apps\Payments\StrpieConnectPayment\Services\" />
+    <Folder Include="Apps\Payments\SubscriptionPayment\Controllers\" />
+    <Folder Include="Apps\Payments\SubscriptionPayment\Helpers\" />
+    <Folder Include="Apps\Payments\SubscriptionPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\SubscriptionPayment\Models\" />
+    <Folder Include="Apps\Payments\SubscriptionPayment\Services\" />
+    <Folder Include="Apps\Payments\SwishPayment\Controllers\" />
+    <Folder Include="Apps\Payments\SwishPayment\Helpers\" />
+    <Folder Include="Apps\Payments\SwishPayment\Interfaces\" />
+    <Folder Include="Apps\Payments\SwishPayment\Models\" />
+    <Folder Include="Apps\Payments\SwishPayment\Services\" />
+    <Folder Include="Apps\Payments\WorldlinePayment\Controllers\" />
+    <Folder Include="Apps\Payments\WorldlinePayment\Helpers\" />
+    <Folder Include="Apps\Payments\WorldlinePayment\Interfaces\" />
+    <Folder Include="Apps\Payments\WorldlinePayment\Models\" />
+    <Folder Include="Apps\Payments\WorldlinePayment\Services\" />
+    <Folder Include="Resources\" />
+  </ItemGroup>
+
+</Project>
