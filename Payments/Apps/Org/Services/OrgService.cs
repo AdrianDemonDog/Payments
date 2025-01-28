@@ -15,7 +15,7 @@ namespace Payments.Apps.Org.Services
         public OrgService(IMongoClient mongoClient)
         {
             var database = mongoClient.GetDatabase("PaymentsDB");
-            _orgCollection = database.GetCollection<OrgModel>("Orgs");
+            _orgCollection = database.GetCollection<OrgModel>("company");
         }
 
         public async Task<ErrorOr<OrgModel>> CreateOrg(OrgDto.CreateOrgDto createOrgDto)
@@ -31,13 +31,12 @@ namespace Payments.Apps.Org.Services
             {
                 VisualId = maxVisualId + 1,
                 Name = createOrgDto.Name,
-                Type = createOrgDto.Type,
-                ParentId = createOrgDto.ParentId,
-                ParentName = createOrgDto.ParentName,
-                Region = createOrgDto.Region,
-                CostPlace = createOrgDto.CostPlace,
+                TaxNumber = createOrgDto.TaxNumber,
+                CreatedBy = createOrgDto.CreatedBy,
                 CreatedAt = DateTime.UtcNow,
-                // CreatedBy = "System"
+                Instance = createOrgDto.Instance,
+                KYC = createOrgDto.KYC,
+                LegalName = createOrgDto.LegalName
             };
 
             await _orgCollection.InsertOneAsync(newOrg);
@@ -99,23 +98,21 @@ namespace Payments.Apps.Org.Services
             if (!string.IsNullOrWhiteSpace(updateOrgDto.Name))
                 existingOrg.Name = updateOrgDto.Name;
 
-            if (!string.IsNullOrWhiteSpace(updateOrgDto.Type))
-                existingOrg.Type = updateOrgDto.Type;
+            if (!string.IsNullOrWhiteSpace(updateOrgDto.TaxNumber))
+                existingOrg.TaxNumber = updateOrgDto.TaxNumber;
 
-            if (!string.IsNullOrWhiteSpace(updateOrgDto.ParentId))
-                existingOrg.ParentId = updateOrgDto.ParentId;
+            if (!string.IsNullOrWhiteSpace(updateOrgDto.Instance))
+                existingOrg.Instance = updateOrgDto.Instance;
 
-            if (!string.IsNullOrWhiteSpace(updateOrgDto.ParentName))
-                existingOrg.ParentName = updateOrgDto.ParentName;
+            if (!string.IsNullOrWhiteSpace(updateOrgDto.KYC))
+                existingOrg.KYC = updateOrgDto.KYC;
 
-            if (!string.IsNullOrWhiteSpace(updateOrgDto.Region))
-                existingOrg.Region = updateOrgDto.Region;
+            if (!string.IsNullOrWhiteSpace(updateOrgDto.LegalName))
+                existingOrg.LegalName = updateOrgDto.LegalName;
 
-            if (!string.IsNullOrWhiteSpace(updateOrgDto.CostPlace))
-                existingOrg.CostPlace = updateOrgDto.CostPlace;
-
+            existingOrg.KYCStatusChanged = updateOrgDto.KYCStatusChanged ?? existingOrg.KYCStatusChanged;
             existingOrg.UpdatedAt = DateTime.UtcNow;
-            // existingOrg.UpdatedBy = "System";
+            existingOrg.UpdatedBy = updateOrgDto.UpdatedBy;
 
             var updateResult = await _orgCollection.ReplaceOneAsync(
                 filter: o => o.Id == id,
@@ -129,5 +126,7 @@ namespace Payments.Apps.Org.Services
 
             return existingOrg;
         }
+
     }
+
 }

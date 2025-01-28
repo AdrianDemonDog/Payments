@@ -17,7 +17,8 @@ namespace Payments.StaticClasses
         public static IMongoDatabase database = client.GetDatabase(databaseName);
 
         // COLLECTIONS
-        public static IMongoCollection<UserModel> userCollection = database.GetCollection<UserModel>("User");
-        public static IMongoCollection<UserModel> orgsCollection = database.GetCollection<UserModel>("Orgs");
+        public static IMongoCollection<UserModel> userCollection = database.GetCollection<UserModel>("Users");
+        public static IMongoCollection<UserModel> orgsCollection = database.GetCollection<UserModel>("company");
+        public static IMongoCollection<UserModel> kycCollection = database.GetCollection<UserModel>("kyc");
     }
 }

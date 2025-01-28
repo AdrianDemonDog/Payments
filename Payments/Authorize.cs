@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Payments.Apps.User.Helpers;
 using Payments.Apps.User.Models;
+using System.Security.Claims;
 
 public class Authorize : TypeFilterAttribute
     {
@@ -14,40 +15,40 @@ public class Authorize : TypeFilterAttribute
 
 public class AuthorizeFilter : IAuthorizationFilter
 {
-    public readonly string _requiredRoles;
+    private readonly string[] _requiredRoles;
 
     public AuthorizeFilter(string roles)
     {
-        _requiredRoles = roles;
+        _requiredRoles = roles.Split(',').Select(r => r.Trim()).ToArray();
     }
 
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        // CHECK ALLOW ANONYMOUS
         bool isAllowAnonymous = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<AllowAnonymousAttribute>() != null;
-        if (isAllowAnonymous == true)
+        if (isAllowAnonymous)
             return;
 
-        var _user = context.HttpContext.User;
-        if (_user.Identity != null && _user.Identity.IsAuthenticated)
-        {
-            // IF ONLY IS [AUTHORIZE]
-            if (_requiredRoles == "")
-                return;
+        var user = context.HttpContext.User;
 
-            var userId = _user.Claims.FirstOrDefault(c => c.Type == "uId")?.Value;
-            if (userId != null)
-            {
-                UserModel user = UserHelper.GetUserById(userId);
-                if (user != null && user.Roles != null)
-                {
-                    if (user.Roles.Contains(_requiredRoles))
-                    {
-                        return;
-                    }
-                }
-            }
+        if (user.Identity == null || !user.Identity.IsAuthenticated)
+        {
+            context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
+            return;
         }
+
+        if (_requiredRoles.Length == 0)
+            return;
+
+        var userRoles = user.Claims
+            .Where(c => c.Type == ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+
+        if (_requiredRoles.Any(requiredRole => userRoles.Contains(requiredRole)))
+        {
+            return; // Permite el acceso
+        }
+
         context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
     }
 }

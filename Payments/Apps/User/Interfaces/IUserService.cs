@@ -1,5 +1,4 @@
 ﻿using ErrorOr;
-using Payments.Apps.Org.Models;
 using Payments.Apps.User.Models;
 using Payments.DTOs;
 
@@ -17,5 +16,6 @@ namespace Payments.Apps.User.Interfaces
         Task<ErrorOr<bool>> VerifyMobile(string token);
         Task<ErrorOr<UserModel>> CreateOrUpdateProfile(ProfileDto profileDto);
         Task<ErrorOr<UserModel>> UpdateUser(string id, UpdateUserDto updatedUserDto);
+        Task<ErrorOr<List<UserModel>>> GetAllUsers();
     }
 }

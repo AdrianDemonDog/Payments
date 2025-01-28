@@ -1,7 +1,9 @@
-﻿namespace Payments.Apps.Mail.Interfaces
+﻿using Payments.Apps.Mail.Services;
+
+namespace Payments.Apps.Mail.Interfaces
 {
     public interface IEmailSender
     {
-        void SendEmail(string toEmail, string subject);
+        void SendEmail(string toEmail, EmailType emailType, string? token = null);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using ErrorOr;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.Apps.AppSystem.Controllers;
 using Payments.Apps.Org.Models;
@@ -7,6 +6,8 @@ using Payments.Apps.User.Helpers;
 using Payments.Apps.User.Interfaces;
 using Payments.Apps.User.Models;
 using Payments.DTOs;
+using System.Data;
+using System.Security.Claims;
 
 namespace Payments.Apps.User.Controllers
 {
@@ -24,10 +25,39 @@ namespace Payments.Apps.User.Controllers
         [HttpPost("login/email")]
         public async Task<IActionResult> LoginWithEmail([FromBody] LoginDto loginDto)
         {
-            ErrorOr<dynamic> result = await _userService.LoginWithEmail(loginDto.Email, loginDto.Password);
+            if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
+            {
+                return BadRequest("Email and password are required.");
+            }
+
+            var result = await _userService.LoginWithEmail(loginDto.Email, loginDto.Password);
+
             return result.Match<IActionResult>(
-                user => Ok(user),
-                errors => Problem(errors.ToString())
+                user =>
+                {
+                    var roles = user.Roles ?? new List<string>();
+
+                    var token = TokenHelper.GenerateJwtToken(loginDto.Email, roles);
+
+                    var response = new
+                    {
+                        User = user,
+                        Token = "Bearer " + token,
+                        Roles = roles
+                    };
+                    return Ok(response);
+                },
+                errors =>
+                {
+                    var problemDetails = new ProblemDetails
+                    {
+                        Title = "Login failed",
+                        Detail = "One or more errors occurred.",
+                        Status = StatusCodes.Status400BadRequest,
+                        Extensions = { { "errors", errors } }
+                    };
+                    return BadRequest(problemDetails);
+                }
             );
         }
 
@@ -97,5 +127,41 @@ namespace Payments.Apps.User.Controllers
             );
         }
 
+        [Authorize("Admin")]
+        [HttpGet("all-users")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            ErrorOr<List<UserModel>> result = await _userService.GetAllUsers();
+            return result.Match<IActionResult>(
+                success => Ok(success),
+                errors => Problem(errors.ToString())
+            );
+        }
+
+        [Authorize("Admin")]
+        [HttpGet("me")]
+        public IActionResult GetAuthenticatedUser()
+        {
+            var user = HttpContext.User;
+
+            if (user?.Identity == null || !user.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { Message = "No user is logged in." });
+            }
+
+            var username = user.Identity.Name;
+            var roles = user.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            return Ok(new
+            {
+                Username = username,
+                Roles = roles
+            });
+        }
+
     }
+
 }

@@ -1,7 +1,9 @@
 ﻿using ErrorOr;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using Payments.Apps.Mail.Interfaces;
 using Payments.Apps.Mail.Services;
+using Payments.Apps.Org.Models;
 using Payments.Apps.User.Helpers;
 using Payments.Apps.User.Interfaces;
 using Payments.Apps.User.Models;
@@ -88,11 +90,14 @@ namespace Payments.Apps.User.Services
                 Pnr = PasswordHelper.HashPassword(registerDto.Password),
                 Roles = new List<string> { "User" },
                 Country = registerDto.Country,
+                Status = "Unverified",
                 CreatedAt = DateTime.UtcNow
             };
 
-            _emailSender.SendEmail(registerDto.Email, "User Regitered");
+            var token = TokenHelper.GenerateToken(newUser.Email ?? string.Empty);
+            _emailSender.SendEmail(registerDto.Email, EmailType.Registration, token);
             await _userCollection.InsertOneAsync(newUser);
+
             return newUser;
         }
 
@@ -127,9 +132,11 @@ namespace Payments.Apps.User.Services
                 Pnr = PasswordHelper.HashPassword(registerDto.Password),
                 Roles = new List<string> { "User" },
                 Country = registerDto.Country,
+                Status = "Unverified",
                 CreatedAt = DateTime.UtcNow
             };
 
+            var token = TokenHelper.GenerateToken(newUser.Email ?? string.Empty);
             await _userCollection.InsertOneAsync(newUser);
             return newUser;
         }
@@ -150,7 +157,7 @@ namespace Payments.Apps.User.Services
             var token = TokenHelper.GenerateToken(emailOrPhone);
             if (!string.IsNullOrWhiteSpace(user.Email))
             {
-                _emailSender.SendEmail(user.Email, $"Reset Password Token: {token}");
+                _emailSender.SendEmail(user.Email, EmailType.PasswordReset, token);
             }
 
             return true;
@@ -189,34 +196,39 @@ namespace Payments.Apps.User.Services
                 return Error.Validation("InvalidToken", "Token is required.");
             }
 
+            // Validar y decodificar el token
             if (!TokenHelper.ValidateToken(token, out var email))
             {
                 return Error.Validation("InvalidToken", "Token is invalid or expired.");
             }
 
+            // Buscar usuario asociado al email
             var user = await _userCollection.Find(u => u.Email == email).FirstOrDefaultAsync();
             if (user == null)
             {
                 return Error.NotFound("UserNotFound", "User not found.");
             }
 
+            // Verificar si el usuario ya está verificado
             if (user.Status == "Verified")
             {
                 return Error.Validation("AlreadyVerified", "Email is already verified.");
             }
 
+            // Actualizar estado a "Verified"
             user.Status = "Verified";
             user.UpdatedAt = DateTime.UtcNow;
-
             await _userCollection.ReplaceOneAsync(u => u.Id == user.Id, user);
 
+            // Enviar correo de confirmación
             if (!string.IsNullOrWhiteSpace(user.Email))
             {
-                _emailSender.SendEmail(user.Email, "Email Verified");
+                _emailSender.SendEmail(user.Email, EmailType.Verification);
             }
 
             return true;
         }
+
 
         public Task<ErrorOr<bool>> VerifyMobile(string token)
         {
@@ -288,5 +300,13 @@ namespace Payments.Apps.User.Services
 
             return existingUser;
         }
+
+        public async Task<ErrorOr<List<UserModel>>> GetAllUsers()
+        {
+            var users = await _userCollection.Find(_ => true).ToListAsync();
+            return users;
+        }
+
     }
+
 }

@@ -1,32 +1,89 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using Payments.Apps.kyc.Interfaces;
+using Payments.Apps.kyc.Services;
 using Payments.Apps.Mail.Interfaces;
 using Payments.Apps.Mail.Services;
 using Payments.Apps.Org.Interfaces;
 using Payments.Apps.Org.Services;
 using Payments.Apps.User.Interfaces;
 using Payments.Apps.User.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configurar autenticación JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "PaymentsAPI",
+            ValidAudience = "PaymentsAPP",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("k8J5G@3pZr#Yd!2NxLfE$9QvT*Wb^Rm&Cj7AoXhKsU6MqV1Pn")),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Configurar Swagger
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Payments API",
+        Version = "v1",
+        Description = "This is the API documentation for PaymentsAPI."
+    });
+
+    // Definición de seguridad para Swagger
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+
+    // Requerir token en Swagger
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
 
 // MongoDB
 builder.Services.AddSingleton<IMongoClient, MongoClient>(sp => new MongoClient("mongodb+srv://adrianmfer99:passwordprueba@todoapi.2edf1.mongodb.net/"));
-builder.Services.AddScoped<IMongoDatabase>(static sp => sp.GetRequiredService<IMongoClient>().GetDatabase("PaymentsDB"));
+builder.Services.AddScoped<IMongoDatabase>(sp => sp.GetRequiredService<IMongoClient>().GetDatabase("PaymentsDB"));
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 // Servicios
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrgService, OrgService>();
+builder.Services.AddScoped<IKycService, KycService>();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configurar el pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -34,9 +91,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

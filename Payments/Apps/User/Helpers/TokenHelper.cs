@@ -47,5 +47,32 @@ namespace Payments.Apps.User.Helpers
                 return false;
             }
         }
+
+        public static string GenerateJwtToken(string username, IEnumerable<string> roles)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("k8J5G@3pZr#Yd!2NxLfE$9QvT*Wb^Rm&Cj7AoXhKsU6MqV1Pn"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            // Crear claims base
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, username)
+    };
+
+            // Agregar roles como claims
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            var token = new JwtSecurityToken(
+                issuer: "PaymentsAPI",
+                audience: "PaymentsAPP",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
     }
+
 }
