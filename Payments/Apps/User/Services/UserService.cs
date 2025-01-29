@@ -136,7 +136,7 @@ namespace Payments.Apps.User.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            var token = TokenHelper.GenerateToken(newUser.Email ?? string.Empty);
+            var token = TokenHelper.GenerateToken(newUser.Phone ?? string.Empty);
             await _userCollection.InsertOneAsync(newUser);
             return newUser;
         }
@@ -196,31 +196,26 @@ namespace Payments.Apps.User.Services
                 return Error.Validation("InvalidToken", "Token is required.");
             }
 
-            // Validar y decodificar el token
             if (!TokenHelper.ValidateToken(token, out var email))
             {
                 return Error.Validation("InvalidToken", "Token is invalid or expired.");
             }
 
-            // Buscar usuario asociado al email
             var user = await _userCollection.Find(u => u.Email == email).FirstOrDefaultAsync();
             if (user == null)
             {
                 return Error.NotFound("UserNotFound", "User not found.");
             }
 
-            // Verificar si el usuario ya está verificado
             if (user.Status == "Verified")
             {
                 return Error.Validation("AlreadyVerified", "Email is already verified.");
             }
 
-            // Actualizar estado a "Verified"
             user.Status = "Verified";
             user.UpdatedAt = DateTime.UtcNow;
             await _userCollection.ReplaceOneAsync(u => u.Id == user.Id, user);
 
-            // Enviar correo de confirmación
             if (!string.IsNullOrWhiteSpace(user.Email))
             {
                 _emailSender.SendEmail(user.Email, EmailType.Verification);

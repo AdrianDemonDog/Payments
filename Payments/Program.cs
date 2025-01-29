@@ -69,6 +69,9 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+// Custom Settings
+builder.Configuration.AddJsonFile("CustomSettings.json", optional: true, reloadOnChange: true);
+
 // MongoDB
 builder.Services.AddSingleton<IMongoClient, MongoClient>(sp => new MongoClient("mongodb+srv://adrianmfer99:passwordprueba@todoapi.2edf1.mongodb.net/"));
 builder.Services.AddScoped<IMongoDatabase>(sp => sp.GetRequiredService<IMongoClient>().GetDatabase("PaymentsDB"));
@@ -82,6 +85,12 @@ builder.Services.AddScoped<IKycService, KycService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.UseCors(policy =>
+    policy.AllowAnyOrigin()
+          .AllowAnyMethod()
+          .AllowAnyHeader());
+
 
 // Configurar el pipeline
 if (app.Environment.IsDevelopment())

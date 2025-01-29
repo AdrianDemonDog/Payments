@@ -35,5 +35,12 @@ namespace Payments.Apps.AppSystem.Helpers
             }
             return false;
         }
+
+        public static string GetAppSetting(string value)
+        {
+            var _config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).AddJsonFile("CustomSettings.json", optional: true, reloadOnChange: true).Build();
+            var section = _config.GetSection(value);
+            return section?.Value ?? string.Empty;
+        }
     }
 }

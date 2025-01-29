@@ -56,7 +56,7 @@ namespace Payments.Apps.User.Controllers
                         Status = StatusCodes.Status400BadRequest,
                         Extensions = { { "errors", errors } }
                     };
-                    return BadRequest(problemDetails);
+                    return BadRequest(new { isError = true, problemDetails });
                 }
             );
         }
@@ -102,12 +102,12 @@ namespace Payments.Apps.User.Controllers
             );
         }
 
-        [HttpPost("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
         {
-            ErrorOr<bool> result = await _userService.VerifyEmail(verifyEmailDto.Token);
+            ErrorOr<bool> result = await _userService.VerifyEmail(token);
             return result.Match<IActionResult>(
-                success => Ok(success),
+                success => Ok("Email verified successfully."),
                 errors => Problem(errors.ToString())
             );
         }

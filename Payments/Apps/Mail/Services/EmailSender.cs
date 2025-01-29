@@ -2,13 +2,14 @@
 using System.Net;
 using System.Text;
 using Payments.Apps.Mail.Interfaces;
+using Payments.Apps.AppSystem.Helpers;
 
 namespace Payments.Apps.Mail.Services
 {
     public class EmailSender : IEmailSender
     {
-        private readonly string _senderEmail = "adrianmfer99@gmail.com";
-        private readonly string _senderPassword = "fbhxpviizbkrbvou";
+        private readonly string _senderEmail = UtilityHelper.GetAppSetting("Email:SenderEmail");
+        private readonly string _senderPassword = UtilityHelper.GetAppSetting("Email:SenderPassword");
 
         public void SendEmail(string toEmail, EmailType emailType, string? token = null)
         {
@@ -60,12 +61,20 @@ namespace Payments.Apps.Mail.Services
                         "Verify Your Email Address",
                         $@"
                         <html>
-                        <body>
+                        <body style='font-family: Arial, sans-serif; text-align: center; padding: 20px;'>
                             <h1>Verify Your Email</h1>
-                            <p>Thank you for signing up! Please verify your email using the token below:</p>
-                            <p><strong>{token}</strong></p>
-                            <p>Or click the button below to verify:</p>
-                            <a href='#' style='background-color:#593068;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;'>Verify Email</a>
+                            <p>Thank you for signing up! Click the button below to verify your email:</p>
+            
+                            <a href='http://localhost:5141/api/users/verify-email?token={token}'
+                               style='display: inline-block; background-color: #593068; color: white; padding: 10px 20px; 
+                                      text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold;'>
+                                Verify Email
+                            </a>
+            
+                            <p>If the button doesn’t work, copy and paste this link into your browser:</p>
+                            <p><a href='http://localhost:5141/api/users/verify-email?token={token}'>
+                                http://localhost:5141/api/users/verify-email?token={token}
+                            </a></p>
                         </body>
                         </html>"
                     );

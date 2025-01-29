@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Payments.Apps.AppSystem.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -50,7 +51,8 @@ namespace Payments.Apps.User.Helpers
 
         public static string GenerateJwtToken(string username, IEnumerable<string> roles)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("k8J5G@3pZr#Yd!2NxLfE$9QvT*Wb^Rm&Cj7AoXhKsU6MqV1Pn"));
+            var secretKey = UtilityHelper.GetAppSetting("Jwt:SecretKey");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             // Crear claims base
