@@ -34,7 +34,6 @@ namespace Payments.Apps.Org.Controllers
             );
         }
 
-        [Authorize("Admin")]
         [HttpGet("get-org/{id}")]
         public async Task<IActionResult> GetOrgById(string id)
         {

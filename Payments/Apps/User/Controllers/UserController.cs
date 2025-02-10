@@ -1,13 +1,19 @@
 ﻿using ErrorOr;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Payments.Apps.AppSystem.Controllers;
 using Payments.Apps.Org.Models;
 using Payments.Apps.User.Helpers;
 using Payments.Apps.User.Interfaces;
 using Payments.Apps.User.Models;
+using Payments.Common.Events;
 using Payments.DTOs;
+using RabbitMQ.Client;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace Payments.Apps.User.Controllers
 {
@@ -16,10 +22,14 @@ namespace Payments.Apps.User.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
+        private readonly IBus _bus;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IConfiguration configuration, IBus bus)
         {
             _userService = userService;
+            _configuration = configuration;
+            _bus = bus;
         }
 
         [HttpPost("login/email")]
@@ -43,7 +53,7 @@ namespace Payments.Apps.User.Controllers
                     {
                         User = user,
                         Token = "Bearer " + token,
-                        Roles = roles
+                        Roles = roles,
                     };
                     return Ok(response);
                 },
@@ -112,7 +122,7 @@ namespace Payments.Apps.User.Controllers
             );
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("update-user/{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto updateUserDto)
         {
             if (updateUserDto == null)
@@ -127,7 +137,6 @@ namespace Payments.Apps.User.Controllers
             );
         }
 
-        [Authorize("Admin")]
         [HttpGet("all-users")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -136,6 +145,19 @@ namespace Payments.Apps.User.Controllers
                 success => Ok(success),
                 errors => Problem(errors.ToString())
             );
+        }
+
+        [HttpGet("sending")]
+        public async Task<IActionResult> sending()
+        {
+            await _bus.Publish(new UserRegisteredEvent
+            {
+                UserId = "121212121212",
+                Email = "adrianpro911@gmail.com"
+                // Add other event properties as needed.
+            });
+
+            return Ok("User registered successfully.");
         }
 
         [Authorize("Admin")]
@@ -162,6 +184,101 @@ namespace Payments.Apps.User.Controllers
             });
         }
 
+        [HttpGet("test-connection")]
+        public async Task<IActionResult> TestConnection()
+        {
+            try
+            {
+                var factory = new ConnectionFactory()
+                {
+                    HostName = "localhost",
+                    UserName = "guest",
+                    Password = "guest"
+                };
+
+                using var connection = await factory.CreateConnectionAsync();
+                using var channel = await connection.CreateChannelAsync();
+
+                return Ok("✅ Conexión exitosa a RabbitMQ");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ Error conectando a RabbitMQ: {ex.Message}");
+            }
+        }
+
+        [HttpGet("profile")]
+        public IActionResult GetUserProfile([FromQuery] string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email is required.");
+            }
+
+            var user = UserHelper.GetUserByEmail(email);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            return Ok(user);
+        }
+
+        [HttpPost("decode-token")]
+        public IActionResult DecodeToken([FromBody] TokenRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Token))
+            {
+                return BadRequest("Token is required.");
+            }
+
+            try
+            {
+                var token = request.Token.StartsWith("Bearer ") ? request.Token.Substring(7) : request.Token;
+
+                var secretKey = _configuration["Jwt:SecretKey"];
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+                var handler = new JwtSecurityTokenHandler();
+
+                var validations = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key
+                };
+
+                var claimsPrincipal = handler.ValidateToken(token, validations, out SecurityToken validatedToken);
+                var jwtToken = validatedToken as JwtSecurityToken;
+
+                if (jwtToken == null)
+                {
+                    return BadRequest("Invalid token.");
+                }
+
+                // Agrupar claims con la misma clave en listas
+                var claims = jwtToken.Claims
+                    .GroupBy(c => c.Type)
+                    .ToDictionary(g => g.Key, g => g.Select(c => c.Value).ToList());
+
+                return Ok(new
+                {
+                    Valid = true,
+                    Claims = claims
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Valid = false, Error = ex.Message });
+            }
+        }
+
     }
 
+    // Modelo para la solicitud
+    public class TokenRequest
+    {
+        public string Token { get; set; }
+    }
 }

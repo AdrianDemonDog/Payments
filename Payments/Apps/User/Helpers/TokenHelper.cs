@@ -57,9 +57,10 @@ namespace Payments.Apps.User.Helpers
 
             // Crear claims base
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, username)
-    };
+            {
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Email, username)
+            };
 
             // Agregar roles como claims
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

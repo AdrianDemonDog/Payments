@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +11,7 @@ using Payments.Apps.Org.Interfaces;
 using Payments.Apps.Org.Services;
 using Payments.Apps.User.Interfaces;
 using Payments.Apps.User.Services;
+using Payments.Common.Events;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,6 +83,28 @@ builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrgService, OrgService>();
 builder.Services.AddScoped<IKycService, KycService>();
+
+builder.Services.AddMassTransit(config =>
+{
+    config.AddConsumer<UserRegisteredConsumer>();
+
+    config.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ReceiveEndpoint("user-registered-queue", e =>
+        {
+            e.ConfigureConsumer<UserRegisteredConsumer>(context);
+        });
+    });
+});
+
+// Iniciar MassTransit como HostedService
+builder.Services.AddMassTransitHostedService();
 
 builder.Services.AddControllers();
 
