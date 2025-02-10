@@ -5,13 +5,13 @@ using System.Net.Mail;
 
 namespace Payments.Common.Events
 {
-    public class UserRegisteredConsumer : IConsumer<UserRegisteredEvent>
+    public class UserRegisteredConsumer : IConsumer<UserRegisteredEventTest>
     {
 
         private readonly string _senderEmail = "adrianmfer99@gmail.com";
         private readonly string _senderPassword = "cawqmfhygyjoviww";
 
-        public async Task Consume(ConsumeContext<UserRegisteredEvent> context)
+        public async Task Consume(ConsumeContext<UserRegisteredEventTest> context)
         {
             var message = context.Message;
             Console.WriteLine($"Recibido evento para {message.Email}");
