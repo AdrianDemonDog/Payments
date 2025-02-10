@@ -157,7 +157,7 @@ namespace Payments.Apps.User.Controllers
                 // Add other event properties as needed.
             });
 
-            return Ok("User registered successfully.");
+            return Ok("Send successfully.");
         }
 
         [Authorize("Admin")]
