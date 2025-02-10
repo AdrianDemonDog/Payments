@@ -99,7 +99,6 @@ builder.Services.AddMassTransit(config =>
         cfg.ReceiveEndpoint("user-registered-queue", e =>
         {
             e.ConfigureConsumer<UserRegisteredConsumer>(context);
-            e.Bind<UserRegisteredEventTest>();
         });
 
         cfg.Message<UserRegisteredEventTest>(x => x.SetEntityName("user-registered-queue"));
