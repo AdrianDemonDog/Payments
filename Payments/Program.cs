@@ -102,7 +102,13 @@ builder.Services.AddMassTransit(config =>
             e.ConfigureConsumer<UserRegisteredConsumer>(context);
         });
 
+        cfg.ReceiveEndpoint("user-logued-queue", e =>
+        {
+            e.ConfigureConsumer<UserLoguedConsumer>(context);
+        });
+
         cfg.Message<UserRegisteredEvent>(x => x.SetEntityName("user-registered-queue"));
+        cfg.Message<UserLoguedEvent>(x => x.SetEntityName("user-logued-queue"));
     });
 });
 
