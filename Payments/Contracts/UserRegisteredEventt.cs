@@ -1,6 +1,6 @@
-﻿namespace Payments.Common.Events
+﻿namespace demonDog.IdentityService.Events
 {
-    public class UserRegisteredEvent
+    public class UserRegisteredEventt
     {
         public string UserId { get; set; }
         public string Email { get; set; }
