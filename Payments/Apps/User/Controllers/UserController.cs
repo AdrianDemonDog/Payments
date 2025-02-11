@@ -12,6 +12,7 @@ using Payments.DTOs;
 using RabbitMQ.Client;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 
@@ -23,13 +24,44 @@ namespace Payments.Apps.User.Controllers
     {
         private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
         private readonly IBus _bus;
 
-        public UserController(IUserService userService, IConfiguration configuration, IBus bus)
+        public UserController(IUserService userService, IConfiguration configuration, IBus bus, HttpClient httpClient)
         {
             _userService = userService;
             _configuration = configuration;
             _bus = bus;
+            _httpClient = httpClient;
+        }
+
+        [HttpPost("fake-login")]
+        public async Task<IActionResult> FakeLogin()
+        {
+            // 🔹 Usuario inventado
+            var fakeUser = new
+            {
+                Id = Guid.NewGuid(),
+                Name = "Takeshi Nakamura",
+                Roles = new List<string> { "admin", "user" },
+                Email = "takeshi.nakamura@example.com",
+            };
+
+            // 🔹 Crear un token JWT falso
+            var token = TokenHelper.GenerateJwtToken(fakeUser.Name, fakeUser.Roles);
+
+            // 🔹 Llamar al endpoint "all-users" con el token
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient.GetAsync("http://localhost:5001/identity/Auth/all-users");
+
+            var users = await response.Content.ReadAsStringAsync();
+
+            return Ok(new
+            {
+                Message = "Fake login successful",
+                Token = token,
+                Users = users
+            });
         }
 
         [HttpPost("login/email")]
