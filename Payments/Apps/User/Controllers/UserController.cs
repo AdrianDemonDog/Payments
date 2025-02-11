@@ -43,12 +43,12 @@ namespace Payments.Apps.User.Controllers
             {
                 Id = Guid.NewGuid(),
                 Name = "Takeshi Nakamura",
-                Roles = new List<string> { "admin", "user" },
                 Email = "takeshi.nakamura@example.com",
+                Role = "admin"
             };
 
             // 🔹 Crear un token JWT falso
-            var token = TokenHelper.GenerateJwtToken(fakeUser.Name, fakeUser.Roles);
+            var token = GenerateJwt(fakeUser);
 
             // 🔹 Llamar al endpoint "all-users" con el token
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -62,6 +62,29 @@ namespace Payments.Apps.User.Controllers
                 Token = token,
                 Users = users
             });
+        }
+
+        private string GenerateJwt(dynamic user)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("clave_secreta_super_segura"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
+        };
+
+            var token = new JwtSecurityToken(
+                issuer: "fake-issuer",
+                audience: "fake-audience",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         [HttpPost("login/email")]
