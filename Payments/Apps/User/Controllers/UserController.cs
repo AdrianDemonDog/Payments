@@ -66,7 +66,7 @@ namespace Payments.Apps.User.Controllers
 
         private string GenerateJwt(dynamic user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("clave_secreta_super_segura"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("k8J5G@3pZr#Yd!2NxLfE$9QvT*Wb^Rm&Cj7AoXhKsU6MqV1Pn"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
