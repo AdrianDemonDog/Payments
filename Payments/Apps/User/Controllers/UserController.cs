@@ -36,7 +36,7 @@ namespace Payments.Apps.User.Controllers
         }
 
         [HttpPost("fake-login")]
-        public async Task<IActionResult> FakeLogin()
+        public IActionResult FakeLogin()
         {
             // 🔹 Usuario inventado
             var fakeUser = new
@@ -51,16 +51,16 @@ namespace Payments.Apps.User.Controllers
             var token = GenerateJwt(fakeUser);
 
             // 🔹 Llamar al endpoint "all-users" con el token
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            var response = await _httpClient.GetAsync("http://localhost:5000/identity/Auth/all-users");
+            //_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            //var response = await _httpClient.GetAsync("http://localhost:5000/identity/Auth/all-users");
 
-            var users = await response.Content.ReadAsStringAsync();
+            //var users = await response.Content.ReadAsStringAsync();
 
             return Ok(new
             {
                 Message = "Fake login successful",
-                Token = token,
-                Users = users
+                Token = token
+                //Users = users
             });
         }
 
