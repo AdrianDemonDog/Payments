@@ -147,19 +147,6 @@ namespace Payments.Apps.User.Controllers
             );
         }
 
-        [HttpGet("sending")]
-        public async Task<IActionResult> sending()
-        {
-            await _bus.Publish(new UserRegisteredEvent
-            {
-                UserId = "121212121212",
-                Email = "adrianpro911@gmail.com"
-                // Add other event properties as needed.
-            });
-
-            return Ok("Send successfully.");
-        }
-
         [Authorize("Admin")]
         [HttpGet("me")]
         public IActionResult GetAuthenticatedUser()

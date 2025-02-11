@@ -6,13 +6,13 @@ using System.Net.Mail;
 
 namespace Payments.Common.Events
 {
-    public class UserRegisteredConsumer : IConsumer<UserRegisteredEventt>
+    public class UserRegisteredConsumer : IConsumer<UserRegisteredEvent>
     {
 
         private readonly string _senderEmail = "adrianmfer99@gmail.com";
         private readonly string _senderPassword = "cawqmfhygyjoviww";
 
-        public async Task Consume(ConsumeContext<UserRegisteredEventt> context)
+        public async Task Consume(ConsumeContext<UserRegisteredEvent> context)
         {
             var message = context.Message;
             Console.WriteLine($"Recibido evento para {message.Email}");
@@ -30,7 +30,7 @@ namespace Payments.Common.Events
                 {
                     From = new MailAddress("adrianmfer99@gmail.com"),
                     Subject = "Welcome to DemonDog!",
-                    Body = $"Hello {message.Email},\n\nWelcome to DemonDog! Your account has been successfully registered.",
+                    Body = $"Hello {message.Name},\n\nWelcome to DemonDog! Your account has been successfully registered.",
                     IsBodyHtml = false
                 };
 
