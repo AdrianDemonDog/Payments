@@ -72,6 +72,8 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+builder.Services.AddHttpClient();
+
 // Custom Settings
 builder.Configuration.AddJsonFile("CustomSettings.json", optional: true, reloadOnChange: true);
 
