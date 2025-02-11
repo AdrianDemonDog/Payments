@@ -52,7 +52,7 @@ namespace Payments.Apps.User.Controllers
 
             // 🔹 Llamar al endpoint "all-users" con el token
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            var response = await _httpClient.GetAsync("http://localhost:5001/identity/Auth/all-users");
+            var response = await _httpClient.GetAsync("http://localhost:5000/identity/Auth/all-users");
 
             var users = await response.Content.ReadAsStringAsync();
 
