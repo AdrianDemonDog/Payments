@@ -88,6 +88,7 @@ builder.Services.AddScoped<IKycService, KycService>();
 builder.Services.AddMassTransit(config =>
 {
     config.AddConsumer<UserRegisteredConsumer>();
+    config.AddConsumer<UserLoguedConsumer>();
 
     config.UsingRabbitMq((context, cfg) =>
     {
