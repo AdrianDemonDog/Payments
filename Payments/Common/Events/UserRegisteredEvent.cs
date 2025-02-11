@@ -1,4 +1,4 @@
-﻿namespace Payments.Common.Events
+﻿namespace demonDog.IdentityService.Events
 {
     public class UserRegisteredEvent
     {

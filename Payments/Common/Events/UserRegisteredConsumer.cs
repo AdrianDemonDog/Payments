@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using demonDog.IdentityService.Events;
+using MassTransit;
 using Payments.Apps.AppSystem.Helpers;
 using System.Net;
 using System.Net.Mail;
