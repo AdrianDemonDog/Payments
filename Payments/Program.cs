@@ -110,8 +110,14 @@ builder.Services.AddMassTransit(config =>
             e.ConfigureConsumer<UserLoggedConsumer>(context);
         });
 
+        cfg.ReceiveEndpoint("forgot-password-queue", e =>
+        {
+            e.ConfigureConsumer<ForgotPasswordConsumer>(context);
+        });
+
         cfg.Message<UserRegisteredEvent>(x => x.SetEntityName("user-registered-queue"));
         cfg.Message<UserLoggedEvent>(x => x.SetEntityName("user-logged-queue"));
+        cfg.Message<ForgotPasswordEvent>(x => x.SetEntityName("forgot-password-queue"));
     });
 });
 
