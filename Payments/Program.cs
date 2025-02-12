@@ -1,4 +1,4 @@
-using demonDog.IdentityService.Events;
+using DemonDog.Contracts.Models;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -90,7 +90,7 @@ builder.Services.AddScoped<IKycService, KycService>();
 builder.Services.AddMassTransit(config =>
 {
     config.AddConsumer<UserRegisteredConsumer>();
-    config.AddConsumer<UserLoguedConsumer>();
+    config.AddConsumer<UserLoggedConsumer>();
 
     config.UsingRabbitMq((context, cfg) =>
     {
@@ -107,11 +107,11 @@ builder.Services.AddMassTransit(config =>
 
         cfg.ReceiveEndpoint("user-logued-queue", e =>
         {
-            e.ConfigureConsumer<UserLoguedConsumer>(context);
+            e.ConfigureConsumer<UserLoggedConsumer>(context);
         });
 
         cfg.Message<UserRegisteredEvent>(x => x.SetEntityName("user-registered-queue"));
-        cfg.Message<UserLoguedEvent>(x => x.SetEntityName("user-logued-queue"));
+        cfg.Message<UserLoggedEvent>(x => x.SetEntityName("user-logged-queue"));
     });
 });
 

@@ -1,6 +1,5 @@
-﻿using demonDog.IdentityService.Events;
+﻿using DemonDog.Contracts.Models;
 using MassTransit;
-using Payments.Apps.AppSystem.Helpers;
 using System.Net;
 using System.Net.Mail;
 

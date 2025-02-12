@@ -44,7 +44,7 @@ namespace Payments.Apps.User.Controllers
                 Id = Guid.NewGuid(),
                 Name = "Takeshi Nakamura",
                 Email = "takeshi.nakamura@example.com",
-                Role = "admin"
+                Role = "Admin"
             };
 
             // 🔹 Crear un token JWT falso
