@@ -44,7 +44,7 @@ namespace Payments.Apps.User.Controllers
                 Id = Guid.NewGuid(),
                 Name = "Takeshi Nakamura",
                 Email = "takeshi.nakamura@example.com",
-                Role = "Admin"
+                Roles = new List<string> { "Admin" }
             };
 
             // 🔹 Crear un token JWT falso
@@ -69,12 +69,13 @@ namespace Payments.Apps.User.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("k8J5G@3pZr#Yd!2NxLfE$9QvT*Wb^Rm&Cj7AoXhKsU6MqV1Pn"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email)
+            };
+
+            claims.AddRange(((IEnumerable<string>)user.Roles).Select(role => new Claim(ClaimTypes.Role, role)));
 
             var token = new JwtSecurityToken(
                 issuer: "fake-issuer",
@@ -86,6 +87,7 @@ namespace Payments.Apps.User.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
         [HttpPost("login/email")]
         public async Task<IActionResult> LoginWithEmail([FromBody] LoginDto loginDto)
