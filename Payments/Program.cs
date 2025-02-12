@@ -91,6 +91,7 @@ builder.Services.AddMassTransit(config =>
 {
     config.AddConsumer<UserRegisteredConsumer>();
     config.AddConsumer<UserLoggedConsumer>();
+    config.AddConsumer<ForgotPasswordConsumer>();
 
     config.UsingRabbitMq((context, cfg) =>
     {
