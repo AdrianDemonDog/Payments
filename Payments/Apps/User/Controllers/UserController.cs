@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Payments.Apps.AppSystem.Controllers;
 using Payments.Apps.Org.Models;
+using DemonDog.Contracts.Models;
 using Payments.Apps.User.Helpers;
 using Payments.Apps.User.Interfaces;
 using Payments.Apps.User.Models;
@@ -38,19 +39,16 @@ namespace Payments.Apps.User.Controllers
         [HttpPost("fake-login")]
         public async Task<IActionResult> FakeLogin()
         {
-            // 🔹 Usuario inventado
             var fakeUser = new
             {
                 Id = Guid.NewGuid(),
                 Name = "Takeshi Nakamura",
                 Email = "takeshi.nakamura@example.com",
-                Roles = new List<string> { "Admin" }
+                Roles = new List<string> { "User", "Admin" }
             };
 
-            // 🔹 Crear un token JWT falso
             var token = GenerateJwt(fakeUser);
 
-            // 🔹 Llamar al endpoint "all-users" con el token
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await _httpClient.GetAsync("http://localhost:5000/identity/Auth/all-users");
 
